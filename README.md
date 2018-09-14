@@ -23,7 +23,7 @@ Supports .NET Standard2.0
 4. Setup devices or discover devices as follows:
 
 
-ex) Setup:  
+#### Setup:  
 
 == Preparation - It is the [same as the original](https://github.com/mjg59/python-broadlink). ==  
 
@@ -40,7 +40,7 @@ ex) Setup:
     Broadlink.Setup('myssid', 'mynetworkpass', Broadlink.WifiSecurityMode.WPA12);
 
 
-ex) Discover devices:  
+#### Discover devices:  
 
 
     using SharpBroadlink;
@@ -48,7 +48,7 @@ ex) Discover devices:
     var devices = await Broadlink.Discover(5);
 
 
-ex) Get signal data:
+#### Get signal data:
 
 
     using SharpBroadlink;
