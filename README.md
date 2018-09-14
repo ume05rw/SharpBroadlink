@@ -26,12 +26,13 @@ Supports .NET Standard2.0
 ex) Setup:  
 
 == Preparation - It is the [same as the original](https://github.com/mjg59/python-broadlink). ==  
+
 1. Put the device into AP Mode.  
 2. Long press the reset button until the blue LED is blinking quickly.  
 3. Long press again until blue LED is blinking slowly.  
 4. Manually connect to the WiFi SSID named BroadlinkProv.  
-5. Run setup() and provide your ssid, network password (if secured), and set the security mode.    
 
+== Preparation is over ==
 
     using SharpBroadlink;
      
