@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using SharpBroadlink;
 
@@ -14,9 +15,9 @@ namespace ConsoleTest
             //    .GetAwaiter()
             //    .GetResult();
 
-            Program.AuthTest()
-                .GetAwaiter()
-                .GetResult();
+            //Program.AuthTest()
+            //    .GetAwaiter()
+            //    .GetResult();
 
             //Program.RmTest()
             //    .GetAwaiter()
@@ -29,6 +30,8 @@ namespace ConsoleTest
             //Program.SetupTest()
             //    .GetAwaiter()
             //    .GetResult();
+
+            Lirc2ProntoTest();
         }
 
         private static async Task<bool> DiscoverTest()
@@ -92,6 +95,40 @@ namespace ConsoleTest
             var a = 1;
 
             return true;
+        }
+
+        private static void Lirc2ProntoTest()
+        {
+            int[] raw = new int[] 
+            {
+                //1000, 2400,  600,  600, 600, 1200,  600, 1200,  600, 1200,
+                // 600,  600,  600, 1200, 600,  600,  600,  600,  600, 1200,
+                // 600,  600,  600, 1200, 600, 1200,  600, 1200,  600,  600,
+                // 600,  600,  600, 1200, 600,  600,  600,  600,  600, 1200,
+                // 600,  600,  25350
+
+                9024, 4512,  564,  564,  564,  564,  564,  564,  564,  564,
+                 564,  564,  564,  564,  564,  564,  564,  564,  564, 1692,
+                 564, 1692,  564, 1692,  564, 1692,  564, 1692,  564, 1692,
+                 564,  564,  564, 1692,  564,  564,  564, 1692,  564,  564,
+                 564,  564,  564,  564,  564,  564,  564,  564,  564,  564,
+                 564, 1692,  564,  564,  564, 1692,  564, 1692,  564, 1692,
+                 564, 1692,  564, 1692,  564, 1692,  564,40884
+            };
+            double frequency = 38.3;
+
+            var result = Signals.Lirc2Pronto(raw, frequency);
+
+            var bStr = Signals.ProntoBytes2String(result);
+            Debug.WriteLine(bStr);
+
+            var res2 = Signals.Lirc2Broadlink(raw);
+            var reverse = Signals.Broadlink2Lirc(res2);
+            var res3 = Signals.Lirc2Broadlink(reverse);
+
+            
+
+            var a = 1;
         }
     }
 }
