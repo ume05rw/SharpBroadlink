@@ -8,18 +8,42 @@ using System.Threading.Tasks;
 namespace SharpBroadlink.Devices
 {
     /// <summary>
-    /// 
+    /// Rm - Programmable Remote Controller
     /// </summary>
     /// <remarks>
     /// https://github.com/mjg59/python-broadlink/blob/56b2ac36e5a2359272f4af8a49cfaf3e1891733a/broadlink/__init__.py#L524-L559
     /// </remarks>
     public class Rm : Device
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="mac"></param>
+        /// <param name="devType"></param>
         public Rm(IPEndPoint host, byte[] mac, int devType) : base(host, mac, devType)
         {
             this.DeviceType = "RM2";
         }
 
+        /// <summary>
+        /// Into learning mode
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> EnterLearning()
+        {
+            var packet = new byte[16];
+            packet[0] = 3;
+
+            await this.SendPacket(0x6a, packet);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Check recieved signal-data
+        /// </summary>
+        /// <returns></returns>
         public async Task<byte[]> CheckData()
         {
             var packet = new byte[16];
@@ -38,6 +62,11 @@ namespace SharpBroadlink.Devices
             return new byte[] { };
         }
 
+        /// <summary>
+        /// Send signal-data
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public async Task<bool> SendData(byte[] data)
         {
             var packet = new List<byte>() { 0x02, 0x00, 0x00, 0x00 };
@@ -48,16 +77,10 @@ namespace SharpBroadlink.Devices
             return true;
         }
 
-        public async Task<bool> EnterLearning()
-        {
-            var packet = new byte[16];
-            packet[0] = 3;
-
-            await this.SendPacket(0x6a, packet);
-
-            return true;
-        }
-
+        /// <summary>
+        /// Get temperature
+        /// </summary>
+        /// <returns></returns>
         public async Task<double> CheckTemperature()
         {
             double temp = double.MinValue;
@@ -75,8 +98,10 @@ namespace SharpBroadlink.Devices
                 if (int.TryParse(charInt, out tmpInt))
                 {
                     // character returned
-                    temp = (int.Parse(((char)packet[0x4]).ToString()) * 10
-                                + int.Parse(((char)packet[0x4]).ToString()))
+                    temp = (
+                                int.Parse(((char)packet[0x4]).ToString()) * 10
+                                + int.Parse(((char)packet[0x5]).ToString())
+                            )
                             / 10.0;
                 }
                 else
