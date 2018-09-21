@@ -5,6 +5,9 @@ using System.Text;
 
 namespace SharpBroadlink
 {
+    /// <summary>
+    /// Signal converter class
+    /// </summary>
     public static class Signals
     {
         /// <summary>
@@ -181,13 +184,13 @@ namespace SharpBroadlink
                 if (bytes.Length <= (index + 1))
                     throw new ArgumentException("Invalid Format");
 
-                short elem;
+                ushort elem;
                 if (bytes[index] == 0x00)
                 {
                     if (bytes.Length <= (index + 3))
                         throw new ArgumentException("Invalid Format");
 
-                    elem = BitConverter.ToInt16(new byte[] { bytes[index + 2], bytes[index + 1] }, 0);
+                    elem = BitConverter.ToUInt16(new byte[] { bytes[index + 2], bytes[index + 1] }, 0);
                     index += 3;
                 }
                 else
@@ -203,5 +206,17 @@ namespace SharpBroadlink
             return ints.ToArray();
         }
 
+        /// <summary>
+        /// Convert Broadlink signal to Pronto bytes
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <param name="frequency">unit: kHz, typical: 36.7(AEHA), 38(NEC), 40(Sony)</param>
+        /// <returns></returns>
+        public static byte[] Broadlink2Pronto(byte[] bytes, double frequency)
+        {
+            var raw = Signals.Broadlink2Lirc(bytes);
+            var result = Signals.Lirc2Pronto(raw, frequency);
+            return result;
+        }
     }
 }

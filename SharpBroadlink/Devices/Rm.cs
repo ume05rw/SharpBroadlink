@@ -100,10 +100,10 @@ namespace SharpBroadlink.Devices
         public async Task<bool> SendPronto(byte[] data)
         {
             var raw = Signals.Pronto2Lirc(data);
-            var broadlinkBytes = Signals.Lirc2Broadlink(raw);
+            var bytes = Signals.Lirc2Broadlink(raw);
 
             //Xb.Util.Out(BitConverter.ToString(broadlinkBytes));
-            return await this.SendData(broadlinkBytes);
+            return await this.SendData(bytes);
         }
 
         /// <summary>
