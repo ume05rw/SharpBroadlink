@@ -7,6 +7,11 @@ namespace SharpBroadlink.Devices
     public enum DeviceType
     {
         /// <summary>
+        /// Unknown device
+        /// </summary>
+        Unknown = 0,
+
+        /// <summary>
         /// Smart Plug 1
         /// </summary>
         /// <remarks>

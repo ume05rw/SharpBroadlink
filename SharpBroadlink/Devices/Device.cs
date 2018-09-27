@@ -72,7 +72,7 @@ namespace SharpBroadlink.Devices
             this.Count = (new System.Random(int.Parse(DateTime.Now.ToString("HHmmssfff"))))
                 .Next(0xffff);
 
-            this.DeviceType = "Unknown"; // overwrite on subclass
+            this.DeviceType = DeviceType.Unknown; // overwrite on subclass
         }
 
         protected byte[] Encrypt(byte[] payload)
@@ -168,7 +168,7 @@ namespace SharpBroadlink.Devices
             return true;
         }
 
-        public string GetDeviceType()
+        public DeviceType GetDeviceType()
         {
             return this.DeviceType;
         }

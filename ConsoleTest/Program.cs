@@ -162,6 +162,8 @@ namespace ConsoleTest
             var devs = await Broadlink.Discover();
             var dev = (Sp2)devs.First(d => d.DeviceType == DeviceType.Sp2);
 
+            var powerState = await dev.CheckPower();
+
             return true;
         }
     }

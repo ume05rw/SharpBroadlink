@@ -22,7 +22,7 @@ namespace SharpBroadlink.Devices
 
         Task<bool> Auth();
 
-        string GetDeviceType();
+        DeviceType GetDeviceType();
 
         Task<byte[]> SendPacket(int command, byte[] payload);
     }

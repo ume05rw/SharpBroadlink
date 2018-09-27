@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +25,24 @@ namespace SharpBroadlink.Devices
 
             if (err == 0)
             {
+                var payload = this.Decrypt(response.Skip(0x38).Take(int.MaxValue).ToArray());
+                var charInt = ((char)packet[0x4]).ToString();
+                var state = false;
 
+                var tmpInt = 0;
+                if (int.TryParse(charInt, out tmpInt))
+                {
+                    // character returned
+                    state = (tmpInt == 1 || tmpInt == 3);
+                }
+                else
+                {
+                    // int returned
+                    var sp2State = (int)packet[0x4];
+                    state = (sp2State == 1 || sp2State == 3);
+                }
+
+                return state;
             }
 
             return false;
