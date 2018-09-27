@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using SharpBroadlink;
+using SharpBroadlink.Devices;
 
 namespace ConsoleTest
 {
@@ -31,13 +33,22 @@ namespace ConsoleTest
             //    .GetAwaiter()
             //    .GetResult();
 
-            Lirc2ProntoTest();
+            //Lirc2ProntoTest();
+
+            //Program.A1SensorTest()
+            //    .GetAwaiter()
+            //    .GetResult();
+
+            Program.Sp2SmartPlugTest()
+                .GetAwaiter()
+                .GetResult();
         }
+
+        #region "TestOK"
 
         private static async Task<bool> DiscoverTest()
         {
             var devs = await Broadlink.Discover();
-            var a = 1;
 
             return true;
         }
@@ -46,9 +57,14 @@ namespace ConsoleTest
         {
             var devs = await Broadlink.Discover();
 
-            await devs[0].Auth();
+            foreach (var dev in devs)
+            {
+                // SmarPlug Sp2 cannot Auth
+                if (dev.DeviceType == DeviceType.Sp2)
+                    continue;
 
-            var a = 1;
+                await dev.Auth();
+            }
 
             return true;
         }
@@ -57,7 +73,7 @@ namespace ConsoleTest
         {
             var devs = await Broadlink.Discover();
 
-            var rm = (SharpBroadlink.Devices.Rm)devs[0];
+            var rm = (Rm)devs[0];
 
             if (!await rm.Auth())
                 throw new Exception("Auth Failure");
@@ -69,7 +85,6 @@ namespace ConsoleTest
             var data2 = await rm.CheckData();
 
             await rm.SendData(data2);
-
 
             return true;
         }
@@ -90,9 +105,7 @@ namespace ConsoleTest
 
         private static async Task<bool> SetupTest()
         {
-            await Broadlink.Setup("xxxxxxxxxx", "xxxxxxxxxx", Broadlink.WifiSecurityMode.WPA12);
-
-            var a = 1;
+            await Broadlink.Setup("xxxxx", "xxxxx", Broadlink.WifiSecurityMode.WPA12);
 
             return true;
         }
@@ -126,9 +139,30 @@ namespace ConsoleTest
             var reverse = Signals.Broadlink2Lirc(res2);
             var res3 = Signals.Lirc2Broadlink(reverse);
 
-            
+            var a = 1;
+        }
+
+        #endregion
+
+        private static async Task<bool> A1SensorTest()
+        {
+            var devs = await Broadlink.Discover();
+            var dev = (SharpBroadlink.Devices.A1)devs.First(d => d.DeviceType == DeviceType.A1);
+
+            var res1 = await dev.CheckSensorsRaw();
+            var res2 = await dev.CheckSensors();
 
             var a = 1;
+
+            return true;
+        }
+
+        private static async Task<bool> Sp2SmartPlugTest()
+        {
+            var devs = await Broadlink.Discover();
+            var dev = (Sp2)devs.First(d => d.DeviceType == DeviceType.Sp2);
+
+            return true;
         }
     }
 }

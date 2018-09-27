@@ -83,9 +83,7 @@ namespace SharpBroadlink.Devices
         /// <param name="devType"></param>
         public A1(IPEndPoint host, byte[] mac, int devType) : base(host, mac, devType)
         {
-            this.DeviceType = "A1";
-
-            //throw new NotImplementedException(@"if you want: https://github.com/mjg59/python-broadlink/blob/56b2ac36e5a2359272f4af8a49cfaf3e1891733a/broadlink/__init__.py#L446-L521");
+            this.DeviceType = DeviceType.A1;
         }
 
         /// <summary>
@@ -98,6 +96,8 @@ namespace SharpBroadlink.Devices
             packet[0] = 1;
 
             var response = await this.SendPacket(0x6a, packet);
+
+            // ** always returned error 65529, but eControl-App shows Sensor-Values. **
             var err = response[0x22] | (response[0x23] << 8);
 
             if (err == 0)

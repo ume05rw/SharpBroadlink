@@ -46,8 +46,7 @@ namespace SharpBroadlink.Devices
         public byte[] Id { get; private set; }
             = new byte[] { 0, 0, 0, 0 };
 
-        public string DeviceType { get; protected set; }
-
+        public DeviceType DeviceType { get; protected set; }
 
         private byte[] Key;
 

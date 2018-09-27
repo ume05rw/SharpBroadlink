@@ -23,7 +23,7 @@ namespace SharpBroadlink.Devices
         /// <param name="devType"></param>
         public Rm(IPEndPoint host, byte[] mac, int devType) : base(host, mac, devType)
         {
-            this.DeviceType = "RM2";
+            this.DeviceType = DeviceType.Rm;
         }
 
         /// <summary>

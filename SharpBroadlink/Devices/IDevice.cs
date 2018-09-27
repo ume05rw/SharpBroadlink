@@ -18,7 +18,7 @@ namespace SharpBroadlink.Devices
 
         byte[] Id { get; }
 
-        string DeviceType { get; }
+        DeviceType DeviceType { get; }
 
         Task<bool> Auth();
 
