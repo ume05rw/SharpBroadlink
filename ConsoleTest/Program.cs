@@ -149,6 +149,7 @@ namespace ConsoleTest
             var devs = await Broadlink.Discover();
             var dev = (SharpBroadlink.Devices.A1)devs.First(d => d.DeviceType == DeviceType.A1);
 
+            // always returned error
             var res1 = await dev.CheckSensorsRaw();
             var res2 = await dev.CheckSensors();
 
@@ -162,6 +163,7 @@ namespace ConsoleTest
             var devs = await Broadlink.Discover();
             var dev = (Sp2)devs.First(d => d.DeviceType == DeviceType.Sp2);
 
+            // result not recieved.
             var powerState = await dev.CheckPower();
 
             return true;
