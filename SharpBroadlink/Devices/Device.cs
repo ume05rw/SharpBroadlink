@@ -75,7 +75,8 @@ namespace SharpBroadlink.Devices
             this.DeviceType = DeviceType.Unknown; // overwrite on subclass
         }
 
-        protected byte[] Encrypt(byte[] payload)
+        //protected byte[] Encrypt(byte[] payload)
+        public byte[] Encrypt(byte[] payload)
         {
             using (var aes = new AesManaged())
             {
@@ -92,12 +93,17 @@ namespace SharpBroadlink.Devices
                 using (var fromStream = new CryptoStream(toStream, encryptor, CryptoStreamMode.Write))
                 {
                     fromStream.Write(payload, 0, payload.Length);
+
+                    Xb.Util.Out($"Encrypt before: {BitConverter.ToString(payload)}");
+                    Xb.Util.Out($"Encrypt after : {BitConverter.ToString(toStream.ToArray())}");
+
                     return toStream.ToArray();
                 }
             }
         }
 
-        protected byte[] Decrypt(byte[] payload)
+        //protected byte[] Decrypt(byte[] payload)
+        public byte[] Decrypt(byte[] payload)
         {
             using (var aes = new AesManaged())
             {
@@ -115,6 +121,10 @@ namespace SharpBroadlink.Devices
                 {
                     var resultStream = new MemoryStream();
                     toStream.CopyTo(resultStream);
+
+                    Xb.Util.Out($"Decrypt before: {BitConverter.ToString(payload)}");
+                    Xb.Util.Out($"Decrypt after : {BitConverter.ToString(resultStream.ToArray())}");
+
                     return resultStream.ToArray();
                 }
             }

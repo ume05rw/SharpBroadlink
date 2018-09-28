@@ -97,14 +97,14 @@ namespace SharpBroadlink.Devices
 
             var response = await this.SendPacket(0x6a, packet);
 
-            // ** always returned error 65529, but eControl-App shows Sensor-Values. **
+            // Authentication is required before obtaining the value.
             var err = response[0x22] | (response[0x23] << 8);
 
             if (err == 0)
             {
                 var result = new RawResult();
                 var payload = this.Decrypt(response.Skip(0x38).Take(int.MaxValue).ToArray());
-                var charInt = ((char)packet[0x4]).ToString();
+                var charInt = ((char)payload[0x4]).ToString();
 
                 var tmpInt = 0;
                 if (int.TryParse(charInt, out tmpInt))
@@ -113,31 +113,31 @@ namespace SharpBroadlink.Devices
                     result.Temperature 
                         = (
                             (
-                                int.Parse(((char)packet[0x4]).ToString()) * 10
-                                + int.Parse(((char)packet[0x5]).ToString())
+                                int.Parse(((char)payload[0x4]).ToString()) * 10
+                                + int.Parse(((char)payload[0x5]).ToString())
                             )
                             / 10.0
                         );
                     result.Humidity
                         = (
                             (
-                                int.Parse(((char)packet[0x6]).ToString()) * 10
-                                + int.Parse(((char)packet[0x7]).ToString())
+                                int.Parse(((char)payload[0x6]).ToString()) * 10
+                                + int.Parse(((char)payload[0x7]).ToString())
                             )
                             / 10.0
                         );
-                    result.Light = int.Parse(((char)packet[0x8]).ToString());
-                    result.AirQuality = int.Parse(((char)packet[0x0a]).ToString());
-                    result.Noise = int.Parse(((char)packet[0xc]).ToString());
+                    result.Light = int.Parse(((char)payload[0x8]).ToString());
+                    result.AirQuality = int.Parse(((char)payload[0x0a]).ToString());
+                    result.Noise = int.Parse(((char)payload[0xc]).ToString());
                 }
                 else
                 {
                     // int returned
-                    result.Temperature = ((packet[0x4] * 10) + packet[0x5]) / 10.0;
-                    result.Humidity = ((packet[0x6] * 10) + packet[0x7]) / 10.0;
-                    result.Light = (int)packet[0x8];
-                    result.AirQuality = (int)packet[0x0a];
-                    result.Noise = (int)packet[0xc];
+                    result.Temperature = ((payload[0x4] * 10) + payload[0x5]) / 10.0;
+                    result.Humidity = ((payload[0x6] * 10) + payload[0x7]) / 10.0;
+                    result.Light = (int)payload[0x8];
+                    result.AirQuality = (int)payload[0x0a];
+                    result.Noise = (int)payload[0xc];
                 }
 
                 return result;
