@@ -52,11 +52,13 @@ namespace SharpBroadlink.Devices
 
         private byte[] Iv { get; }
 
-        private Xb.Net.Udp Cs { get; }
+        //private Xb.Net.Udp Cs { get; }
+        protected Xb.Net.Udp Cs { get; }
 
         private LockObject Lock { get; } = new LockObject();
 
-        private int Count;
+        //private int Count;
+        protected int Count;
 
         public Device(IPEndPoint host, byte[] mac, int devType, int timeout = 10)
         {
@@ -161,18 +163,19 @@ namespace SharpBroadlink.Devices
 
             var response = await this.SendPacket(0x65, payload.ToArray());
 
-            payload.Clear();
-            var decripted = this.Decrypt(response.Skip(0x38).Take(int.MaxValue).ToArray());
-            payload.AddRange(decripted);
-
-            if (payload.Count <= 0)
+            if (response == null)
                 return false;
 
-            var key = payload.Skip(0x04).Take(16).ToArray();
+            var result = this.Decrypt(response.Skip(0x38).Take(int.MaxValue).ToArray());
+
+            if (result.Length <= 0)
+                return false;
+
+            var key = result.Skip(0x04).Take(16).ToArray();
             if (key.Length % 16 != 0)
                 return false;
 
-            this.Id = payload.Take(0x04).ToArray();
+            this.Id = result.Take(0x04).ToArray();
             this.Key = key;
 
             return true;

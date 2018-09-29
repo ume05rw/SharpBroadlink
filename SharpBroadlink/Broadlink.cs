@@ -36,6 +36,11 @@ namespace SharpBroadlink
             if (address.Length != 4)
                 throw new NotSupportedException("Not Supported IPv6");
 
+            // for address endian validation
+            var localPrimaryIpAddress = Xb.Net.Util
+                .GetLocalPrimaryAddress()
+                .GetAddressBytes();
+
             using (var cs = new Xb.Net.Udp())
             {
                 var port = cs.LocalPort;
@@ -99,10 +104,21 @@ namespace SharpBroadlink
                     Array.Copy(bytes, 0x3a, mac, 0, 6);
 
                     // Get IP address
-                    // 0x36-0x39, Little Endian
+                    // 0x36-0x39, Mostly Little Endian
                     var addr = new byte[4];
                     Array.Copy(bytes, 0x36, addr, 0, 4);
-                    Array.Reverse(addr); // to Big Endian
+                    if (addr[0] == localPrimaryIpAddress[0] && addr[1] == localPrimaryIpAddress[1])
+                    {
+                        // Recieve IP address is Big Endian
+                        // Do nothing.
+                    }
+                    else
+                    {
+                        // Recieve IP address is Little Endian
+                        // Change to Big Endian.
+                        Array.Reverse(addr);
+                    }
+
                     var host = new IPEndPoint(new IPAddress(addr), 80);
 
                     var devType = (bytes[0x34] | bytes[0x35] << 8);

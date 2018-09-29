@@ -35,13 +35,13 @@ namespace ConsoleTest
 
             //Lirc2ProntoTest();
 
-            Program.A1SensorTest()
-                .GetAwaiter()
-                .GetResult();
-
-            //Program.Sp2SmartPlugTest()
+            //Program.A1SensorTest()
             //    .GetAwaiter()
             //    .GetResult();
+
+            Program.Sp2SmartPlugTest()
+                .GetAwaiter()
+                .GetResult();
         }
 
         #region "TestOK"
@@ -142,13 +142,12 @@ namespace ConsoleTest
             var a = 1;
         }
 
-        #endregion
-
         private static async Task<bool> A1SensorTest()
         {
             var devs = await Broadlink.Discover();
             var dev = (SharpBroadlink.Devices.A1)devs.First(d => d.DeviceType == DeviceType.A1);
 
+            // before Auth, cannot get values.
             var res0 = await dev.CheckSensorsRaw();
 
             var authRes = await dev.Auth();
@@ -156,36 +155,17 @@ namespace ConsoleTest
             var res1 = await dev.CheckSensorsRaw();
             var res2 = await dev.CheckSensors();
 
-            var a = 1;
-
             return true;
         }
+
+        #endregion
 
         private static async Task<bool> Sp2SmartPlugTest()
         {
             var devs = await Broadlink.Discover();
             var dev = (Sp2)devs.First(d => d.DeviceType == DeviceType.Sp2);
 
-            var bytes1 = new byte[]
-            {
-                0xa8 ,0xde ,0xd0 ,0x62 ,0x92 ,0x77 ,0x7a ,0xd3 ,
-                0x71 ,0x00 ,0x0a ,0x46 ,0x24 ,0x78 ,0x21 ,0xc0
-            };
-
-            //var bytes2 = new byte[]
-            //{
-            //    0xA4, 0x39, 0xA5, 0xD8, 0xB3, 0x86, 0xF5, 0xE0, 0x86, 0xF1, 0xE7, 0x2B, 0x49, 0x1C, 0x48, 0xF6
-            //};
-
-            var decBytes1 = dev.Decrypt(bytes1);
-            //Xb.Util.Out(string.Join(", ", bytes1.Select(b => ((int)b).ToString()).ToArray()));
-            var decHex1 = BitConverter.ToString(decBytes1);
-            Xb.Util.Out(decHex1);
-
-            var decBytes2 = dev.Encrypt(decBytes1);
-            //Xb.Util.Out(string.Join(", ", decBytes1.Select(b => ((int)b).ToString()).ToArray()));
-            var decHex2 = BitConverter.ToString(decBytes2);
-            Xb.Util.Out(decHex2);
+            var res = await dev.Auth();
 
             // result not recieved.
             var powerState = await dev.CheckPower();
