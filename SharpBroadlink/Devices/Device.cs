@@ -52,13 +52,11 @@ namespace SharpBroadlink.Devices
 
         private byte[] Iv { get; }
 
-        //private Xb.Net.Udp Cs { get; }
-        protected Xb.Net.Udp Cs { get; }
+        private Xb.Net.Udp Cs { get; }
 
         private LockObject Lock { get; } = new LockObject();
 
-        //private int Count;
-        protected int Count;
+        private int Count;
 
         public Device(IPEndPoint host, byte[] mac, int devType, int timeout = 10)
         {
@@ -77,8 +75,7 @@ namespace SharpBroadlink.Devices
             this.DeviceType = DeviceType.Unknown; // overwrite on subclass
         }
 
-        //protected byte[] Encrypt(byte[] payload)
-        public byte[] Encrypt(byte[] payload)
+        protected byte[] Encrypt(byte[] payload)
         {
             using (var aes = new AesManaged())
             {
@@ -104,8 +101,7 @@ namespace SharpBroadlink.Devices
             }
         }
 
-        //protected byte[] Decrypt(byte[] payload)
-        public byte[] Decrypt(byte[] payload)
+        protected byte[] Decrypt(byte[] payload)
         {
             using (var aes = new AesManaged())
             {

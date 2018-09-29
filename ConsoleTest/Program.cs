@@ -158,19 +158,30 @@ namespace ConsoleTest
             return true;
         }
 
-        #endregion
-
         private static async Task<bool> Sp2SmartPlugTest()
         {
-            var devs = await Broadlink.Discover();
+            var devs = await Broadlink.Discover(3);
             var dev = (Sp2)devs.First(d => d.DeviceType == DeviceType.Sp2);
 
-            var res = await dev.Auth();
+            var res1 = await dev.Auth();
 
             // result not recieved.
             var powerState = await dev.CheckPower();
+            var nightLightState = await dev.CheckNightLight();
+            var status = await dev.CheckStatus();
+
+            var res2 = await dev.SetPower(true);
+            var res3 = await dev.SetNightLight(true);
+
+            await dev.SetPower(false);
+            await dev.SetNightLight(false);
+
+            var energy = await dev.GetEnergy();
 
             return true;
         }
+
+        #endregion
+
     }
 }
