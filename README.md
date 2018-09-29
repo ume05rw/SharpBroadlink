@@ -54,7 +54,7 @@ Supports .NET Standard2.0
     using SharpBroadlink;
      
     var devices = await Broadlink.Discover(5);
-    var device = (SharpBroadlink.Devices.Rm)devs.First(d => d.DeviceType == DeviceType.Rm);
+    var device = (SharpBroadlink.Devices.Rm)devices.First(d => d.DeviceType == DeviceType.Rm);
      
     await device.Auth();
      
@@ -77,7 +77,8 @@ And...
 
     using SharpBroadlink;
      
-    var device = (SharpBroadlink.Devices.Rm)devs.First(d => d.DeviceType == DeviceType.Rm);
+    var devices = await Broadlink.Discover(5);
+    var device = (SharpBroadlink.Devices.Rm)devices.First(d => d.DeviceType == DeviceType.Rm);
     await device.Auth();
      
     // Toshiba-TV Power-On IR code
@@ -92,7 +93,7 @@ And...
     using SharpBroadlink;
      
     var devices = await Broadlink.Discover(5);
-    var device = (SharpBroadlink.Devices.A1)devs.First(d => d.DeviceType == DeviceType.A1);
+    var device = (SharpBroadlink.Devices.A1)devices.First(d => d.DeviceType == DeviceType.A1);
     
     // before Auth, cannot get values. 
     await device.Auth();
@@ -105,7 +106,7 @@ And...
     using SharpBroadlink;
      
     var devices = await Broadlink.Discover(5);
-    var device = (SharpBroadlink.Devices.Sp2)devs.First(d => d.DeviceType == DeviceType.Sp2);
+    var device = (SharpBroadlink.Devices.Sp2)devices.First(d => d.DeviceType == DeviceType.Sp2);
     
     // before Auth, cannot get values. 
     await device.Auth();
