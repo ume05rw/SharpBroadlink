@@ -1,7 +1,7 @@
-SharpBroadlink - for Broadlink RM1 IR Controller
+SharpBroadlink - for Broadlink RM IR Controller
 ====
 
-A simple C# API for controlling RM2 from [Broadlink](http://www.ibroadlink.com/rm/).  
+A simple C# API for controlling RM from [Broadlink](http://www.ibroadlink.com/rm/).  
 This is a port of [python-broadlink](https://github.com/mjg59/python-broadlink) to C# .Net Standard.  
 
 ## Description
