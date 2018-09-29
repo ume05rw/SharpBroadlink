@@ -19,10 +19,8 @@ Supports .NET Standard2.0
 [Xb.Net](https://github.com/ume05rw/Xb.Net/)  
 
 ## Usage
-1. Create your new C# project.
-2. Download this solution.
-3. Add a project-reference SharpBroadlink/SharpBroadlink.csproj to your project.
-4. Setup devices or discover devices as follows:
+1. [Add NuGet-Package](https://www.nuget.org/packages/SharpBroadlink/) to your project, or download this source and add ref [SharpBroadlink.csproj](https://github.com/ume05rw/SharpBroadlink/blob/master/SharpBroadlink/SharpBroadlink.csproj)
+2. Setup devices or discover devices as follows:
 
 
 #### Setup:  
@@ -56,10 +54,12 @@ Supports .NET Standard2.0
     using SharpBroadlink;
      
     var devices = await Broadlink.Discover(5);
-    var rm = (SharpBroadlink.Devices.Rm) devices[0];
+    var device = (SharpBroadlink.Devices.Rm)devs.First(d => d.DeviceType == DeviceType.Rm);
+     
+    await device.Auth();
      
     // Enter Learning mode
-    await rm.EnterLearning();
+    await device.EnterLearning();
 
 
 Here, Point the remote control to be learned to RM Pro, and press the button.  
@@ -67,10 +67,25 @@ And...
 
 
     // Get signal data.
-    var signal = await rm.CheckData();
+    var signal = await device.CheckData();
      
     // Test signal
-    await rm.SendData(signal);
+    await device.SendData(signal);
+
+
+#### Send Philips-Pronto format IR signal data with RM:
+
+    using SharpBroadlink;
+     
+    var device = (SharpBroadlink.Devices.Rm)devs.First(d => d.DeviceType == DeviceType.Rm);
+    await device.Auth();
+     
+    // Toshiba-TV Power-On IR code
+    // http://www.remotecentral.com/cgi-bin/codes/toshiba/ct-9726/
+    var pronto = "0000 006b 0022 0002 0156 00ac 0016 0015 0016 0015 0016 0015 0016 0015 0016 0015 0016 0015 0016 0040 0016 0015 0016 0040 0016 0040 0016 0040 0016 0040 0016 0040 0016 0040 0016 0015 0016 0040 0016 0015 0016 0040 0016 0015 0016 0015 0016 0040 0016 0015 0016 0015 0016 0015 0016 0040 0016 0015 0016 0040 0016 0040 0016 0015 0016 0040 0016 0040 0016 0040 0016 05fb 0156 0056 0016 0e59";
+    var bytes = Signals.String2ProntoBytes(pronto);
+    
+    await device.SendPronto(bytes);
 
 #### Get sensor data with A1:
 
@@ -82,7 +97,7 @@ And...
     // before Auth, cannot get values. 
     await device.Auth();
      
-    var values = await dev.CheckSensors();
+    var values = await device.CheckSensors();
 
 
 #### Get/Set plug state with SP3:
@@ -95,11 +110,11 @@ And...
     // before Auth, cannot get values. 
     await device.Auth();
      
-    var powerState = await dev.CheckPower();
-    var nightLightState = await dev.CheckNightLight();
+    var powerState = await device.CheckPower();
+    var nightLightState = await device.CheckNightLight();
 
-    await dev.SetPower(!powerState);
-    await dev.SetNightLight(!nightLightState);
+    await device.SetPower(!powerState);
+    await device.SetNightLight(!nightLightState);
 
 ## Licence
 
