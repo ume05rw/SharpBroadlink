@@ -163,6 +163,7 @@ namespace ConsoleTest
             var devs = await Broadlink.Discover(3);
             var dev = (Sp2)devs.First(d => d.DeviceType == DeviceType.Sp2);
 
+            // before Auth, cannot get values.
             var res1 = await dev.Auth();
 
             // result not recieved.

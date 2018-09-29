@@ -1,15 +1,17 @@
-SharpBroadlink - for Broadlink RM Pro IR Controller
+SharpBroadlink - for Broadlink RM1 IR Controller
 ====
 
-A simple C# API for controlling RM Pro from [Broadlink](http://www.ibroadlink.com/rm/).  
+A simple C# API for controlling RM2 from [Broadlink](http://www.ibroadlink.com/rm/).  
 This is a port of [python-broadlink](https://github.com/mjg59/python-broadlink) to C# .Net Standard.  
 
 ## Description
 
-Supported device is RM Pro only.  
-The original python-broadlink supports A1 sensors and more, but I have not implemented it yet.  
-I don't have these devices.  
-
+Supported device:  
+* RM Pro  
+* RM mini 3 (Black Bean)  
+* A1 Temperature/Humidity/Noise/Light/VOC Sensor   
+* SP mini 3 Smart Plug
+  
 Supports .NET Standard2.0
 
 ## Requirement
@@ -48,7 +50,7 @@ Supports .NET Standard2.0
     var devices = await Broadlink.Discover(5);
 
 
-#### Get signal data:
+#### Get signal data with RM:
 
 
     using SharpBroadlink;
@@ -70,6 +72,34 @@ And...
     // Test signal
     await rm.SendData(signal);
 
+#### Get sensor data with A1:
+
+    using SharpBroadlink;
+     
+    var devices = await Broadlink.Discover(5);
+    var device = (SharpBroadlink.Devices.A1)devs.First(d => d.DeviceType == DeviceType.A1);
+    
+    // before Auth, cannot get values. 
+    await device.Auth();
+     
+    var values = await dev.CheckSensors();
+
+
+#### Get/Set plug state with SP3:
+
+    using SharpBroadlink;
+     
+    var devices = await Broadlink.Discover(5);
+    var device = (SharpBroadlink.Devices.Sp2)devs.First(d => d.DeviceType == DeviceType.Sp2);
+    
+    // before Auth, cannot get values. 
+    await device.Auth();
+     
+    var powerState = await dev.CheckPower();
+    var nightLightState = await dev.CheckNightLight();
+
+    await dev.SetPower(!powerState);
+    await dev.SetNightLight(!nightLightState);
 
 ## Licence
 
