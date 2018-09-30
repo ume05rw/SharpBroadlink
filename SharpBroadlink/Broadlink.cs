@@ -151,6 +151,18 @@ namespace SharpBroadlink
         }
 
         /// <summary>
+        /// Get IDevice object
+        /// </summary>
+        /// <param name="deviceType"></param>
+        /// <param name="mac"></param>
+        /// <param name="endPoint"></param>
+        /// <returns></returns>
+        public static Devices.IDevice Create(int deviceType, byte[] mac, IPEndPoint endPoint)
+        {
+            return Devices.Factory.GenDevice(deviceType, endPoint, mac);
+        }
+
+        /// <summary>
         /// Set the Wi-Fi setting to devices.
         /// </summary>
         /// <param name="ssid"></param>
