@@ -27,16 +27,21 @@ namespace SharpBroadlink.Devices
                         0x2728,                          // SPMini2
                         0x2733, 0x273e,                  // OEM branded SPMini
                         0x7530, 0x7918,                  // OEM branded SPMini2
-                        0x2736                           // SPMiniPlus
+                        0x2736,                          // SPMiniPlus
                     }
                 },
                 { "Rm", new int[]
                     {
                         0x2712,  // RM2
                         0x2737,  // RM Mini
-                        0x273d,  // RM Pro Phicomm
+                        0x273d,  // RM Pro Phicomm // <- have RF?
                         0x2783,  // RM2 Home Plus
                         0x277c,  // RM2 Home Plus GDT
+                        0x278f,  // RM Mini Shate
+                    }
+                },
+                { "Rm2Pro", new int[]
+                    {
                         0x272a,  // RM2 Pro Plus
                         0x2787,  // RM2 Pro Plus2
                         0x279d,  // RM2 Pro Plus3
@@ -45,7 +50,6 @@ namespace SharpBroadlink.Devices
                         0x2797,  // RM2 Pro Plus HYC
                         0x27a1,  // RM2 Pro Plus R1
                         0x27a6,  // RM2 Pro PP
-                        0x278f   // RM Mini Shate
                     }
                 },
                 { "A1", new int[] { 0x2714 } },  // A1

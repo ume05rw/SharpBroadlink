@@ -34,8 +34,6 @@ namespace SharpBroadlink.Devices
         /// </summary>
         /// <remarks>
         /// RM2, RM Mini, RM Pro Phicomm, RM2 Home Plus, RM2 Home Plus GDT,
-        /// RM2 Pro Plus, RM2 Pro Plus2, RM2 Pro Plus3, RM2 Pro Plus_300,
-        /// RM2 Pro Plus BL, RM2 Pro Plus HYC, RM2 Pro Plus R1, RM2 Pro PP,
         /// RM Mini Shate
         /// </remarks>
         Rm = 3,
@@ -78,6 +76,15 @@ namespace SharpBroadlink.Devices
         /// <remarks>
         /// Dooya DT360E (DOOYA_CURTAIN_V2)
         /// </remarks>
-        Dooya = 8
+        Dooya = 8,
+
+        /// <summary>
+        /// RM-Pro+ IR/RF Controller
+        /// </summary>
+        /// <remarks>
+        /// RM2 Pro Plus, RM2 Pro Plus2, RM2 Pro Plus3, RM2 Pro Plus_300,
+        /// RM2 Pro Plus BL, RM2 Pro Plus HYC, RM2 Pro Plus R1, RM2 Pro PP
+        /// </remarks>
+        Rm2Pro = 9,
     }
 }

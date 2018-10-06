@@ -196,7 +196,7 @@ namespace SharpBroadlink.Devices
             packet[0x07] = 0x55;
             packet[0x24] = 0x2a;
             packet[0x25] = 0x27;
-            packet[0x26] = (byte)command;
+            packet[0x26] = (byte)command; //UDP-0x5a
             packet[0x28] = (byte)(this.Count & 0xff);
             packet[0x29] = (byte)(this.Count >> 8);
             packet[0x2a] = this.Mac[0];
@@ -229,6 +229,7 @@ namespace SharpBroadlink.Devices
 
             payload = this.Encrypt(payload);
 
+            // append 0x38- (UDP-0x62)
             packet.AddRange(payload);
 
             checksum = 0xbeaf;

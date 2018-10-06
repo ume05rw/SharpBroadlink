@@ -2,6 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>1.0.1.2</Version>
+    <PackageTags>Broadlink IR IRDB Philips Pronto RM BlackBean</PackageTags>
+    <Description>A simple C# API for controlling Broadlink devices.
+This is a port of python-broadlink to C# .Net Standard.</Description>
+    <Copyright>Do-Be's</Copyright>
+    <PackageLicenseUrl>https://github.com/ume05rw/SharpBroadlink/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/ume05rw/SharpBroadlink</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ume05rw/SharpBroadlink.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>Cut out Rm2Pro from Rm, Add RF-Lerning implements.</PackageReleaseNotes>
+    <NeutralLanguage>ja</NeutralLanguage>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyVersion>1.0.1.2</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -27,13 +27,13 @@ namespace SharpBroadlink.Devices
         }
 
         /// <summary>
-        /// Into learning mode
+        /// Into IR Learning mode
         /// </summary>
         /// <returns></returns>
         public async Task<bool> EnterLearning()
         {
             var packet = new byte[16];
-            packet[0] = 3;
+            packet[0] = 0x03;
 
             await this.SendPacket(0x6a, packet);
 
@@ -41,13 +41,13 @@ namespace SharpBroadlink.Devices
         }
 
         /// <summary>
-        /// Check recieved signal-data
+        /// Check recieved IR signal-data
         /// </summary>
         /// <returns></returns>
         public async Task<byte[]> CheckData()
         {
             var packet = new byte[16];
-            packet[0] = 4;
+            packet[0] = 0x04;
 
             var response = await this.SendPacket(0x6a, packet);
             var err = response[0x22] | (response[0x23] << 8);
@@ -63,7 +63,21 @@ namespace SharpBroadlink.Devices
         }
 
         /// <summary>
-        /// Send signal-data
+        /// Cancel IR Learning mode
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> CancelLearning()
+        {
+            var packet = new byte[16];
+            packet[0] = 0x1e;
+
+            await this.SendPacket(0x6a, packet);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Send IR signal-data
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
