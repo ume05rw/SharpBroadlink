@@ -35,9 +35,9 @@ namespace ConsoleTest
 
             //Lirc2ProntoTest();
 
-            //Program.A1SensorTest()
-            //    .GetAwaiter()
-            //    .GetResult();
+            Program.A1SensorTest()
+                .GetAwaiter()
+                .GetResult();
 
             Program.Sp2SmartPlugTest()
                 .GetAwaiter()
@@ -144,7 +144,7 @@ namespace ConsoleTest
 
         private static async Task<bool> A1SensorTest()
         {
-            var devs = await Broadlink.Discover();
+            var devs = await Broadlink.Discover(1);
             var dev = (SharpBroadlink.Devices.A1)devs.First(d => d.DeviceType == DeviceType.A1);
 
             // before Auth, cannot get values.

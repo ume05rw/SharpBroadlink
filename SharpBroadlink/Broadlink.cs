@@ -96,17 +96,17 @@ namespace SharpBroadlink
                 packet[0x21] = (byte)(checksum >> 8);
 
                 var isRecievedOnce = false;
-                cs.OnRecieved += (object sender, byte[] bytes) =>
+                cs.OnRecieved += (object sender, Xb.Net.RemoteData rdata) =>
                 {
                     // Get mac
                     // 0x3a-0x3f, Little Endian
                     var mac = new byte[6];
-                    Array.Copy(bytes, 0x3a, mac, 0, 6);
+                    Array.Copy(rdata.Bytes, 0x3a, mac, 0, 6);
 
                     // Get IP address
                     // 0x36-0x39, Mostly Little Endian
                     var addr = new byte[4];
-                    Array.Copy(bytes, 0x36, addr, 0, 4);
+                    Array.Copy(rdata.Bytes, 0x36, addr, 0, 4);
                     if (addr[0] == localPrimaryIpAddress[0] && addr[1] == localPrimaryIpAddress[1])
                     {
                         // Recieve IP address is Big Endian
@@ -121,7 +121,7 @@ namespace SharpBroadlink
 
                     var host = new IPEndPoint(new IPAddress(addr), 80);
 
-                    var devType = (bytes[0x34] | bytes[0x35] << 8);
+                    var devType = (rdata.Bytes[0x34] | rdata.Bytes[0x35] << 8);
                     devices.Add(Devices.Factory.GenDevice(devType, host, mac));
 
                     isRecievedOnce = true;

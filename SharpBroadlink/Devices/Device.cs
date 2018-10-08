@@ -241,7 +241,7 @@ namespace SharpBroadlink.Devices
             packet[0x20] = (byte)(checksum & 0xff);
             packet[0x21] = (byte)(checksum >> 8);
 
-            byte[] result = null;
+            Xb.Net.RemoteData result = null;
             await Task.Run(() => 
             {
                 lock (this.Lock)
@@ -257,7 +257,7 @@ namespace SharpBroadlink.Devices
                 }
             });
 
-            return result;
+            return result?.Bytes;
         }
     }
 }
