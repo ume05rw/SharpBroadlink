@@ -187,7 +187,7 @@ namespace SharpBroadlink
                 ushort elem;
                 if (bytes[index] == 0x00)
                 {
-                    if (bytes.Length <= (index + 3))
+                    if (bytes.Length <= (index + 2))
                         throw new ArgumentException("Invalid Format");
 
                     elem = BitConverter.ToUInt16(new byte[] { bytes[index + 2], bytes[index + 1] }, 0);
