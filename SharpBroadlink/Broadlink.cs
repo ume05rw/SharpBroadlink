@@ -105,18 +105,13 @@ namespace SharpBroadlink
 
                     // Get IP address
                     // 0x36-0x39, Mostly Little Endian
-                    var addr = new byte[4];
-                    Array.Copy(rdata.Bytes, 0x36, addr, 0, 4);
-                    if (addr[0] == localPrimaryIpAddress[0] && addr[1] == localPrimaryIpAddress[1])
+                    var addr = rdata.RemoteEndPoint.Address.GetAddressBytes();
+                    if (addr.Length != 4)
                     {
-                        // Recieve IP address is Big Endian
-                        // Do nothing.
-                    }
-                    else
-                    {
-                        // Recieve IP address is Little Endian
-                        // Change to Big Endian.
-                        Array.Reverse(addr);
+                        //throw new Exception("Unexpected IP Address. v6?");
+                        Xb.Util.Out("Unexpected IP Address. v6? : " 
+                                    + BitConverter.ToString(addr));
+                        return;
                     }
 
                     var host = new IPEndPoint(new IPAddress(addr), 80);

@@ -29,19 +29,19 @@ namespace ConsoleTest
             //    .GetAwaiter()
             //    .GetResult();
 
-            //Program.SetupTest()
-            //    .GetAwaiter()
-            //    .GetResult();
+            Program.SetupTest()
+                .GetAwaiter()
+                .GetResult();
 
             //Lirc2ProntoTest();
 
-            Program.A1SensorTest()
-                .GetAwaiter()
-                .GetResult();
+            //Program.A1SensorTest()
+            //    .GetAwaiter()
+            //    .GetResult();
 
-            Program.Sp2SmartPlugTest()
-                .GetAwaiter()
-                .GetResult();
+            //Program.Sp2SmartPlugTest()
+            //    .GetAwaiter()
+            //    .GetResult();
         }
 
         #region "TestOK"
@@ -105,7 +105,7 @@ namespace ConsoleTest
 
         private static async Task<bool> SetupTest()
         {
-            await Broadlink.Setup("xxxxx", "xxxxx", Broadlink.WifiSecurityMode.WPA12);
+            await Broadlink.Setup("UMAP04", "yamxrw4u1vrc0", Broadlink.WifiSecurityMode.WPA12);
 
             return true;
         }
