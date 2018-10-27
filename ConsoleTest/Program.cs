@@ -13,9 +13,9 @@ namespace ConsoleTest
         {
             Console.WriteLine("Hello World!");
 
-            //Program.DiscoverTest()
-            //    .GetAwaiter()
-            //    .GetResult();
+            Program.DiscoverTest()
+                .GetAwaiter()
+                .GetResult();
 
             //Program.AuthTest()
             //    .GetAwaiter()
@@ -29,9 +29,9 @@ namespace ConsoleTest
             //    .GetAwaiter()
             //    .GetResult();
 
-            Program.SetupTest()
-                .GetAwaiter()
-                .GetResult();
+            //Program.SetupTest()
+            //    .GetAwaiter()
+            //    .GetResult();
 
             //Lirc2ProntoTest();
 

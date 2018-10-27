@@ -104,15 +104,40 @@ namespace SharpBroadlink
                     Array.Copy(rdata.Bytes, 0x3a, mac, 0, 6);
 
                     // Get IP address
-                    // 0x36-0x39, Mostly Little Endian
-                    var addr = rdata.RemoteEndPoint.Address.GetAddressBytes();
-                    if (addr.Length != 4)
+                    byte[] addr;
+                    if (rdata.RemoteEndPoint.AddressFamily 
+                        == System.Net.Sockets.AddressFamily.InterNetwork)
                     {
-                        //throw new Exception("Unexpected IP Address. v6?");
-                        Xb.Util.Out("Unexpected IP Address. v6? : " 
-                                    + BitConverter.ToString(addr));
+                        var tmpAddr = rdata.RemoteEndPoint.Address.GetAddressBytes();
+                        addr = tmpAddr.Skip(tmpAddr.Length - 4).Take(4).ToArray();
+                    } else if (rdata.RemoteEndPoint.AddressFamily 
+                               == System.Net.Sockets.AddressFamily.InterNetworkV6)
+                    {
+                        // Get the IPv4 address in Broadlink-Device response.
+                        // 0x36-0x39, Mostly Little Endian
+                        addr = new byte[4];
+                        Array.Copy(rdata.Bytes, 0x36, addr, 0, 4);
+                        if (addr[0] == localPrimaryIpAddress[0] && addr[1] == localPrimaryIpAddress[1])
+                        {
+                            // Recieve IP address is Big Endian
+                            // Do nothing.
+                        }
+                        else
+                        {
+                            // Recieve IP address is Little Endian
+                            // Change to Big Endian.
+                            Array.Reverse(addr);
+                        }
+                    }
+                    else
+                    {
+                        Xb.Util.Out("Unexpected Address: " + BitConverter.ToString(rdata.RemoteEndPoint.Address.GetAddressBytes()));
                         return;
                     }
+                    
+
+
+
 
                     var host = new IPEndPoint(new IPAddress(addr), 80);
 
