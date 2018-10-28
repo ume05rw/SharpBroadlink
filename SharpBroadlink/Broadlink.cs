@@ -117,16 +117,52 @@ namespace SharpBroadlink
                         // 0x36-0x39, Mostly Little Endian
                         addr = new byte[4];
                         Array.Copy(rdata.Bytes, 0x36, addr, 0, 4);
-                        if (addr[0] == localPrimaryIpAddress[0] && addr[1] == localPrimaryIpAddress[1])
+
+                        var sockAddr = rdata.RemoteEndPoint.Address.GetAddressBytes();
+                        var reverseAddr = rdata.RemoteEndPoint.Address.GetAddressBytes();
+
+                        // IPv4射影アドレスのとき、v4アドレスに変換。
+                        if (
+                            // 長さが16バイト
+                            sockAddr.Length == 16
+                            // 先頭10バイトが全て0
+                            && sockAddr.Take(10).All(b => b == 0)
+                            // 11, 12バイトが FF
+                            && sockAddr.Skip(10).Take(2).All(b => b == 255)
+                        )
                         {
-                            // Recieve IP address is Big Endian
-                            // Do nothing.
+                            sockAddr = sockAddr.Skip(12).Take(4).ToArray();
+                            reverseAddr = reverseAddr.Skip(12).Take(4).ToArray();
+                        }
+
+                        Array.Reverse(reverseAddr);
+
+
+                        if (sockAddr.SequenceEqual(addr))
+                        {
+                            // 1.v6アドレスの末尾4バイトと同一
+                            // 受信通りの並び順
+                        }
+                        else if (reverseAddr.SequenceEqual(addr))
+                        {
+                            // 2. v6アドレス末尾4バイトの逆順と同一
+                            // 逆順
+                            Array.Reverse(addr);
                         }
                         else
+                        if (addr[3] == localPrimaryIpAddress[0] && addr[2] == localPrimaryIpAddress[1])
                         {
+                            // 3.ローカルv4アドレスの先頭2バイトが、逆順と合致
+                            // 恐らく逆順
                             // Recieve IP address is Little Endian
                             // Change to Big Endian.
                             Array.Reverse(addr);
+                        }
+                        else
+                        {
+                            // 4.上の1～3に全て合致しない
+                            // 恐らく受信順
+                            // Do nothing.
                         }
                     }
                     else
@@ -134,10 +170,6 @@ namespace SharpBroadlink
                         Xb.Util.Out("Unexpected Address: " + BitConverter.ToString(rdata.RemoteEndPoint.Address.GetAddressBytes()));
                         return;
                     }
-                    
-
-
-
 
                     var host = new IPEndPoint(new IPAddress(addr), 80);
 

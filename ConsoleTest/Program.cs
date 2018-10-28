@@ -48,7 +48,7 @@ namespace ConsoleTest
 
         private static async Task<bool> DiscoverTest()
         {
-            var devs = await Broadlink.Discover();
+            var devs = await Broadlink.Discover(5);
 
             return true;
         }
