@@ -13,9 +13,13 @@ namespace ConsoleTest
         {
             Console.WriteLine("Hello World!");
 
-            Program.DiscoverTest()
+            Program.SetupTest()
                 .GetAwaiter()
                 .GetResult();
+
+            //Program.DiscoverTest()
+            //    .GetAwaiter()
+            //    .GetResult();
 
             //Program.AuthTest()
             //    .GetAwaiter()
@@ -26,10 +30,6 @@ namespace ConsoleTest
             //    .GetResult();
 
             //Program.RmTemperatureTest()
-            //    .GetAwaiter()
-            //    .GetResult();
-
-            //Program.SetupTest()
             //    .GetAwaiter()
             //    .GetResult();
 
@@ -105,10 +105,10 @@ namespace ConsoleTest
 
         private static async Task<bool> SetupTest()
         {
-            await Broadlink.Setup("UMAP04", "yamxrw4u1vrc0", Broadlink.WifiSecurityMode.WPA12);
+            await Broadlink.Setup("XXXX", "XXXX", Broadlink.WifiSecurityMode.WPA12);
 
             return true;
-        }
+         }
 
         private static void Lirc2ProntoTest()
         {
