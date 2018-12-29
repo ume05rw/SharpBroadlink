@@ -15,7 +15,7 @@ namespace SharpBroadlink.Devices
     /// <remarks>
     /// https://github.com/mjg59/python-broadlink/blob/56b2ac36e5a2359272f4af8a49cfaf3e1891733a/broadlink/__init__.py#L142-L291
     /// </remarks>
-    public class Device : IDevice
+    public class Device : IDevice, IDisposable
     {
         private class LockObject
         {
@@ -50,11 +50,11 @@ namespace SharpBroadlink.Devices
 
         private byte[] Key;
 
-        private byte[] Iv { get; }
+        private byte[] Iv { get; set; }
 
-        private Xb.Net.Udp Cs { get; }
+        private Xb.Net.Udp Cs { get; set; }
 
-        private LockObject Lock { get; } = new LockObject();
+        private LockObject Lock { get; set; } = new LockObject();
 
         private int Count;
 
@@ -259,5 +259,38 @@ namespace SharpBroadlink.Devices
 
             return result?.Bytes;
         }
+
+        #region IDisposable Support
+        private bool _isDisposed = false; // 重複する呼び出しを検出するには
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this._isDisposed)
+            {
+                if (disposing)
+                {
+                    if (this.Cs != null)
+                    {
+                        this.Cs.Dispose();
+                        this.Cs = null;
+                    }
+
+                    this.Host = null;
+                    this.Mac = null;
+                    this.Id = null;
+                    this.Key = null;
+                    this.Iv = null;
+                    this.Lock = null;
+                }
+
+                this._isDisposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+        }
+        #endregion
     }
 }

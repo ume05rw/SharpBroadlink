@@ -25,5 +25,7 @@ namespace SharpBroadlink.Devices
         DeviceType GetDeviceType();
 
         Task<byte[]> SendPacket(int command, byte[] payload);
+
+        void Dispose();
     }
 }
