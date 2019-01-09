@@ -27,10 +27,10 @@ Supports .NET Standard2.0
 
 == Preparation - It is the [same as the original](https://github.com/mjg59/python-broadlink). ==  
 
-1. Put the device into AP Mode.  
+1. Plug the USB-cable into your Broadlink device, turn it on.  
 2. Long press the reset button until the blue LED is blinking quickly.  
 3. Long press again until blue LED is blinking slowly.  
-4. Manually connect to the WiFi SSID named BroadlinkProv.  
+4. Manually connect your PC to the WiFi SSID named BroadlinkProv.  
 
 == Preparation is over ==
 
