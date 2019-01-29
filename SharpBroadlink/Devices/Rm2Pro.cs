@@ -7,6 +7,17 @@ using System.Threading.Tasks;
 
 namespace SharpBroadlink.Devices
 {
+    /// <summary>
+    /// Rm2Pro - Programmable Remote Controller for RF
+    /// </summary>
+    /// <remarks>
+    /// https://github.com/kemalincekara/Broadlink.NET/blob/master/Broadlink.NET/PacketGenerator.cs
+    /// 
+    /// ** Warning **
+    /// This is a pilot implementation.
+    /// Learning of RF signal does NOT WORKS.
+    /// 
+    /// </remarks>
     public class Rm2Pro : Rm
     {
         /// <summary>
@@ -21,9 +32,16 @@ namespace SharpBroadlink.Devices
         }
 
         /// <summary>
-        /// Into RF Learning mode
+        /// [Pilot Implementation] Into RF Learning mode
         /// </summary>
         /// <returns></returns>
+        /// <remarks>
+        /// ** Warning **
+        /// This is a pilot implementation.
+        /// Learning of RF signal does NOT WORKS.
+        /// 
+        /// This method is probably correct.
+        /// </remarks>
         public async Task<bool> EnterRfLearning()
         {
             var packet = new byte[16];
@@ -35,10 +53,18 @@ namespace SharpBroadlink.Devices
         }
 
         /// <summary>
-        /// Check recieved RF signal-data
+        /// [Pilot Implementation] Check recieved RF signal-data
         /// </summary>
         /// <returns></returns>
-        private async Task<bool> CheckRfStep1Data()
+        /// <remarks>
+        /// ** Warning **
+        /// This is a pilot implementation.
+        /// Learning of RF signal does NOT WORKS.
+        /// 
+        /// It seems that it is detecting the RF signal,
+        /// I don't know if the result judgment is correct or not.
+        /// </remarks>
+        public async Task<bool> CheckRfStep1Data()
         {
             var packet = new byte[16];
             packet[0] = 0x1a;
@@ -61,10 +87,17 @@ namespace SharpBroadlink.Devices
         }
 
         /// <summary>
-        /// Check recieved RF signal-data
+        /// [Pilot Implementation] Check recieved RF signal-data
         /// </summary>
         /// <returns></returns>
-        private async Task<byte[]> CheckRfStep2Data()
+        /// <remarks>
+        /// ** Warning **
+        /// This is a pilot implementation.
+        /// Learning of RF signal does NOT WORKS.
+        /// 
+        /// The result is always zero x 12bytes
+        /// </remarks>
+        public async Task<byte[]> CheckRfStep2Data()
         {
             var packet = new byte[16];
             packet[0] = 0x1b;
@@ -87,11 +120,17 @@ namespace SharpBroadlink.Devices
         }
 
         /// <summary>
-        /// Cancel RF Learning mode
+        /// [Pilot Implementation] Cancel RF Learning mode
         /// </summary>
         /// <returns></returns>
         /// <remarks>
         /// Same as RF packet
+        /// 
+        /// ** Warning **
+        /// This is a pilot implementation.
+        /// Learning of RF signal does NOT WORKS.
+        /// 
+        /// This method is probably correct.
         /// </remarks>
         public async Task<bool> CancelRfLearning()
         {
@@ -99,10 +138,18 @@ namespace SharpBroadlink.Devices
         }
 
         /// <summary>
-        /// Send RF signal-data
+        /// [Pilot Implementation] Send RF signal-data
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
+        /// <remarks>
+        /// ** Warning **
+        /// This is a pilot implementation.
+        /// Learning of RF signal does NOT WORKS.
+        /// 
+        /// I have not done it.
+        /// Because signal data could not be acquired.
+        /// </remarks>
         public async Task<bool> SendRfData(byte[] data)
         {
             var packet = new List<byte>() { 0x02, 0x00, 0x00, 0x00 };

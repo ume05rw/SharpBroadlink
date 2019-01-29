@@ -42,9 +42,40 @@ namespace ConsoleTest
             //Program.Sp2SmartPlugTest()
             //    .GetAwaiter()
             //    .GetResult();
+
+            Program.RmRfSignalTest()
+                .GetAwaiter()
+                .GetResult();
         }
 
         #region "TestOK"
+
+        private static async Task<bool> RmRfSignalTest()
+        {
+            var devs = await Broadlink.Discover(3);
+            var targetIp = new byte[] { 192, 168, 254, 142 };
+            var rm = (Rm2Pro)devs.FirstOrDefault(d => d.Host.Address.GetAddressBytes().SequenceEqual(targetIp));
+
+            if (rm == null)
+                throw new Exception("Rm2Pro Not Found");
+
+            if (!await rm.Auth())
+                throw new Exception("Auth Failure");
+
+            var res1 = await rm.EnterRfLearning();
+
+            var res20 = await rm.CheckRfStep1Data();
+
+            var res21 = await rm.EnterRfLearning();
+
+            var res3 = await rm.CheckRfStep2Data();
+
+            var res4 = await rm.CancelRfLearning();
+
+            var res5 = await rm.SendRfData(res3);
+
+            return true;
+        }
 
         private static async Task<bool> DiscoverTest()
         {

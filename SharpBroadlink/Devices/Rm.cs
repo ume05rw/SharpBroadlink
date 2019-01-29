@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace SharpBroadlink.Devices
 {
     /// <summary>
-    /// Rm - Programmable Remote Controller
+    /// Rm - Programmable Remote Controller for IR
     /// </summary>
     /// <remarks>
     /// https://github.com/mjg59/python-broadlink/blob/56b2ac36e5a2359272f4af8a49cfaf3e1891733a/broadlink/__init__.py#L524-L559
