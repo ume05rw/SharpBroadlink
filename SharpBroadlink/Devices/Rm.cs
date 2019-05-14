@@ -50,16 +50,21 @@ namespace SharpBroadlink.Devices
             packet[0] = 0x04;
 
             var response = await this.SendPacket(0x6a, packet);
-            var err = response[0x22] | (response[0x23] << 8);
+            if (response == null || response.Length <= 0x38)
+                return null;
 
+            var err = response[0x22] | (response[0x23] << 8);
             if (err == 0)
             {
                 var payload = this.Decrypt(response.Skip(0x38).Take(int.MaxValue).ToArray());
+                if (payload.Length <= 0x04)
+                    return null;
+
                 return payload.Skip(0x04).Take(int.MaxValue).ToArray();
             }
 
             // failure
-            return new byte[] { };
+            return null;
         }
 
         /// <summary>

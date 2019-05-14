@@ -13,9 +13,9 @@ namespace ConsoleTest
         {
             Console.WriteLine("Hello World!");
 
-            Program.SetupTest()
-                .GetAwaiter()
-                .GetResult();
+            //Program.SetupTest()
+            //    .GetAwaiter()
+            //    .GetResult();
 
             //Program.DiscoverTest()
             //    .GetAwaiter()
@@ -46,6 +46,8 @@ namespace ConsoleTest
             Program.RmRfSignalTest()
                 .GetAwaiter()
                 .GetResult();
+
+            Console.ReadKey();
         }
 
         #region "TestOK"
@@ -53,8 +55,9 @@ namespace ConsoleTest
         private static async Task<bool> RmRfSignalTest()
         {
             var devs = await Broadlink.Discover(3);
-            var targetIp = new byte[] { 192, 168, 254, 142 };
-            var rm = (Rm2Pro)devs.FirstOrDefault(d => d.Host.Address.GetAddressBytes().SequenceEqual(targetIp));
+            //var targetIp = new byte[] { 192, 168, 254, 142 };
+            //var rm = (Rm2Pro)devs.FirstOrDefault(d => d.Host.Address.GetAddressBytes().SequenceEqual(targetIp));
+            var rm = (Rm2Pro)devs.FirstOrDefault(d => d.DeviceType == DeviceType.Rm2Pro);
 
             if (rm == null)
                 throw new Exception("Rm2Pro Not Found");
@@ -62,18 +65,63 @@ namespace ConsoleTest
             if (!await rm.Auth())
                 throw new Exception("Auth Failure");
 
-            var res1 = await rm.EnterRfLearning();
+            if (!await rm.SweepFrequencies())
+                throw new Exception("Sweeping Frequencies failed");
 
-            var res20 = await rm.CheckRfStep1Data();
+            Console.WriteLine("Sweepint Frequencies success, LED should be on");
 
-            var res21 = await rm.EnterRfLearning();
+            byte[] packetData = null;
+            try
+            {
+                while(!await rm.CheckFrequency())
+                {
+                    Console.WriteLine("Check frequency failed");
+                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    if (Console.KeyAvailable && Console.ReadKey().Key == ConsoleKey.Escape)
+                        return false;
+                }
+                Console.WriteLine("Check frequency success");
 
-            var res3 = await rm.CheckRfStep2Data();
+                if (!await rm.find_rf_packet())
+                    Console.WriteLine("Find rf packet failed");
 
-            var res4 = await rm.CancelRfLearning();
+                Console.WriteLine("Press any key to continue learning");
+                Console.ReadKey();
 
-            var res5 = await rm.SendRfData(res3);
+                while (true)
+                {
+                    if (Console.KeyAvailable && Console.ReadKey().Key == ConsoleKey.Escape)
+                        return false;
 
+                    packetData = await rm.CheckData();
+                    if(packetData == null || packetData.Length == 0)
+                    {
+                        Console.WriteLine("Check data failed");
+                        await Task.Delay(TimeSpan.FromSeconds(1));
+                    }
+                    else
+                    {
+                        Console.WriteLine("command learned!");
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                if (!await rm.CancelRfLearning())
+                    Console.WriteLine("Failed to cancel learning");
+            }
+
+            while (true)
+            {
+                Console.WriteLine("Press any key to trigger");
+                if (Console.ReadKey().Key == ConsoleKey.Escape)
+                    break;
+
+                if (!await rm.SendRfData(packetData))
+                    Console.WriteLine("Failed to send packet data");
+                else Console.WriteLine("Command sent");
+            }
             return true;
         }
 

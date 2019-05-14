@@ -42,7 +42,7 @@ namespace SharpBroadlink.Devices
         /// 
         /// This method is probably correct.
         /// </remarks>
-        public async Task<bool> EnterRfLearning()
+        public async Task<bool> SweepFrequencies()
         {
             var packet = new byte[16];
             packet[0] = 0x19;
@@ -64,22 +64,28 @@ namespace SharpBroadlink.Devices
         /// It seems that it is detecting the RF signal,
         /// I don't know if the result judgment is correct or not.
         /// </remarks>
-        public async Task<bool> CheckRfStep1Data()
+        public async Task<bool> CheckFrequency()
         {
             var packet = new byte[16];
             packet[0] = 0x1a;
 
             var response = await this.SendPacket(0x6a, packet);
+            if (response == null || response.Length <= 0x38)
+                return false;
+
             var err = response[0x22] | (response[0x23] << 8);
 
             if (err == 0)
             {
                 var payload = this.Decrypt(response.Skip(0x38).Take(int.MaxValue).ToArray());
+                if (payload.Length <= 0x04)
+                    return false;
 
+                return payload[0x04] == 1;
                 // 応答データ全体
-                var resultData = payload.Skip(4).Take(int.MaxValue).ToArray();
+                //var resultData = payload.Skip(4).Take(int.MaxValue).ToArray();
 
-                return (resultData[0] == 0x01);
+                //return (resultData[0] == 0x01);
             }
 
             // failure
@@ -97,26 +103,30 @@ namespace SharpBroadlink.Devices
         /// 
         /// The result is always zero x 12bytes
         /// </remarks>
-        public async Task<byte[]> CheckRfStep2Data()
+        public async Task<bool> find_rf_packet()
         {
             var packet = new byte[16];
             packet[0] = 0x1b;
 
             var response = await this.SendPacket(0x6a, packet);
-            var err = response[0x22] | (response[0x23] << 8);
+            if (response == null || response.Length <= 0x38)
+                return false;
 
+            var err = response[0x22] | (response[0x23] << 8);
             if (err == 0)
             {
                 var payload = this.Decrypt(response.Skip(0x38).Take(int.MaxValue).ToArray());
 
-                // 応答データ全体
-                var resultData = payload.Skip(4).Take(int.MaxValue).ToArray();
+                return payload[0x04] == 1;
+                //// 応答データ全体
+                //var resultData = payload.Skip(4).Take(int.MaxValue).ToArray();
 
-                return resultData;
+                //return resultData;
             }
 
+            return false;
             // failure
-            return new byte[] { };
+            //return new byte[] { };
         }
 
         /// <summary>
