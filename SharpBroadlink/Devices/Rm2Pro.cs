@@ -114,10 +114,8 @@ namespace SharpBroadlink.Devices
         /// <summary>
         /// Async method for learning RF commands
         /// </summary>
+        /// <remarks>User should press and hold remote button until learning is finished</remarks>
         /// <param name="cancellationToken">Used to cancel RF learning</param>
-        /// <param name="moveToStep2">Learning RF consists of 2 steps. First user should press and hold remote to learn RF frequency. When this delegate is invoked,
-        /// frequency is learned and user should release the remote. After that the method should return and the user should press remote again shortly to learn the actual command.
-        /// The actual time of pressing the remote in step 2 influences the command code</param>
         /// <returns>Learned RF command</returns>
         /// <exception cref="InvalidOperationException">In case of failure</exception>
         /// <exception cref="TaskCanceledException">In case learning has benn cancelled</exception>
