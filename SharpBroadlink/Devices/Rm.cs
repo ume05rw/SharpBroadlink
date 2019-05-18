@@ -18,7 +18,7 @@ namespace SharpBroadlink.Devices
     {
         #region Properties
 
-        public TimeSpan IRLearnIterval { get; set; } = TimeSpan.FromMilliseconds(100);
+        public static TimeSpan IRLearnIterval { get; set; } = TimeSpan.FromMilliseconds(100);
 
         #endregion Properties
 
