@@ -101,7 +101,9 @@ namespace SharpBroadlink.Devices
             }
         }
 
-        protected byte[] Decrypt(byte[] payload)
+        protected byte[] Decrypt(byte[] payload) => Decrypt(payload, 0, payload.Length);
+        protected byte[] Decrypt(byte[] payload, int startIndex) => Decrypt(payload, startIndex, payload.Length - startIndex);
+        protected byte[] Decrypt(byte[] payload, int startIndex, int count)
         {
             using (var aes = new AesManaged())
             {
@@ -114,15 +116,11 @@ namespace SharpBroadlink.Devices
                 aes.Padding = PaddingMode.None;
 
                 using (var decryptor = aes.CreateDecryptor())
-                using (var fromStream = new MemoryStream(payload))
+                using (var fromStream = new MemoryStream(payload, startIndex, count))
                 using (var toStream = new CryptoStream(fromStream, decryptor, CryptoStreamMode.Read))
+                using (var resultStream = new MemoryStream())
                 {
-                    var resultStream = new MemoryStream();
                     toStream.CopyTo(resultStream);
-
-                    Xb.Util.Out($"Decrypt before: {BitConverter.ToString(payload)}");
-                    Xb.Util.Out($"Decrypt after : {BitConverter.ToString(resultStream.ToArray())}");
-
                     return resultStream.ToArray();
                 }
             }

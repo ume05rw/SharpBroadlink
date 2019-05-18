@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SharpBroadlink.Devices
@@ -15,6 +16,14 @@ namespace SharpBroadlink.Devices
     /// </remarks>
     public class Rm : Device
     {
+        #region Properties
+
+        public TimeSpan IRLearnIterval { get; set; } = TimeSpan.FromMilliseconds(100);
+
+        #endregion Properties
+
+        #region Constructors
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -23,8 +32,12 @@ namespace SharpBroadlink.Devices
         /// <param name="devType"></param>
         public Rm(IPEndPoint host, byte[] mac, int devType) : base(host, mac, devType)
         {
-            this.DeviceType = DeviceType.Rm;
+            DeviceType = DeviceType.Rm;
         }
+
+        #endregion Constructors
+
+        #region Public Methods
 
         /// <summary>
         /// Into IR Learning mode
@@ -35,7 +48,7 @@ namespace SharpBroadlink.Devices
             var packet = new byte[16];
             packet[0] = 0x03;
 
-            await this.SendPacket(0x6a, packet);
+            await SendPacket(0x6a, packet);
 
             return true;
         }
@@ -49,14 +62,14 @@ namespace SharpBroadlink.Devices
             var packet = new byte[16];
             packet[0] = 0x04;
 
-            var response = await this.SendPacket(0x6a, packet);
+            var response = await SendPacket(0x6a, packet);
             if (response == null || response.Length <= 0x38)
                 return null;
 
             var err = response[0x22] | (response[0x23] << 8);
             if (err == 0)
             {
-                var payload = this.Decrypt(response.Skip(0x38).Take(int.MaxValue).ToArray());
+                var payload = Decrypt(response, 0x38);
                 if (payload.Length <= 0x04)
                     return null;
 
@@ -76,7 +89,7 @@ namespace SharpBroadlink.Devices
             var packet = new byte[16];
             packet[0] = 0x1e;
 
-            await this.SendPacket(0x6a, packet);
+            await SendPacket(0x6a, packet);
 
             return true;
         }
@@ -91,7 +104,7 @@ namespace SharpBroadlink.Devices
             var packet = new List<byte>() { 0x02, 0x00, 0x00, 0x00 };
             packet.AddRange(data);
 
-            await this.SendPacket(0x6a, packet.ToArray());
+            await SendPacket(0x6a, packet.ToArray());
 
             return true;
         }
@@ -106,12 +119,12 @@ namespace SharpBroadlink.Devices
             var packet = new byte[16];
             packet[0] = 1;
 
-            var response = await this.SendPacket(0x6a, packet);
+            var response = await SendPacket(0x6a, packet);
             var err = response[0x22] | (response[0x23] << 8);
 
             if (err == 0)
             {
-                var payload = this.Decrypt(response.Skip(0x38).Take(int.MaxValue).ToArray());
+                var payload = Decrypt(response, 0x38);
                 var charInt = ((char)packet[0x4]).ToString();
                 var tmpInt = 0;
                 if (int.TryParse(charInt, out tmpInt))
@@ -147,7 +160,7 @@ namespace SharpBroadlink.Devices
             var bytes = Signals.Lirc2Broadlink(raw);
 
             //Xb.Util.Out(BitConverter.ToString(broadlinkBytes));
-            return await this.SendData(bytes);
+            return await SendData(bytes);
         }
 
         /// <summary>
@@ -157,7 +170,43 @@ namespace SharpBroadlink.Devices
         /// <returns></returns>
         public async Task<bool> SendPronto(string data)
         {
-            return await this.SendPronto(Signals.String2ProntoBytes(data));
+            return await SendPronto(Signals.String2ProntoBytes(data));
         }
+
+        /// <summary>
+        /// Learn IR command
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation Token for IR learning</param>
+        /// <returns>IR command</returns>
+        /// <exception cref="InvalidOperationException">In case of failure</exception>
+        /// <exception cref="TaskCanceledException">In case learning has benn cancelled</exception>
+        public Task<byte[]> LearnIRCommnad(CancellationToken cancellationToken)
+        {            
+            return Task.Run(async () =>
+            {
+                try
+                {
+                    if (!await EnterLearning())
+                        throw new InvalidOperationException("Failed to enter IR learning");
+
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    byte[] command = null;
+                    while(null == (command = await CheckData()))
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        await Task.Delay(IRLearnIterval);
+                    }
+
+                    return command;
+                }
+                finally
+                {
+                    await CancelLearning();
+                }
+            }, cancellationToken);
+        }
+
+        #endregion Public Methods
     }
 }
