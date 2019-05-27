@@ -93,8 +93,8 @@ And...
 	var rm2pro = (await Broadlink.Discover(1))
                 .First(x => x.DeviceType == DeviceType.Rm2Pro) as Rm2Pro;
 	await rm2pro.Auth();
-	var code = await rm2pro.LearnRfCommand(CancellationToken.None);
-	await rm2pro.SendRfData(code);
+	using(var code = await rm2pro.LearnRfCommand(CancellationToken.None))
+		await rm2pro.SendRfData(code);
 
 #### Get sensor data with A1:
 
