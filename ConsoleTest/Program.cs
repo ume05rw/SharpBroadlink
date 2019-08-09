@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SharpBroadlink;
 using SharpBroadlink.Devices;
@@ -13,66 +14,103 @@ namespace ConsoleTest
         {
             Console.WriteLine("Hello World!");
 
-            Program.SetupTest()
-                .GetAwaiter()
-                .GetResult();
+            try
+            {
+                //Program.SetupTest()
+                //    .GetAwaiter()
+                //    .GetResult();
 
-            //Program.DiscoverTest()
-            //    .GetAwaiter()
-            //    .GetResult();
+                //Program.DiscoverTest()
+                //    .GetAwaiter()
+                //    .GetResult();
 
-            //Program.AuthTest()
-            //    .GetAwaiter()
-            //    .GetResult();
+                //Program.AuthTest()
+                //    .GetAwaiter()
+                //    .GetResult();
 
-            //Program.RmTest()
-            //    .GetAwaiter()
-            //    .GetResult();
+                //Program.RmTest()
+                //    .GetAwaiter()
+                //    .GetResult();
 
-            //Program.RmTemperatureTest()
-            //    .GetAwaiter()
-            //    .GetResult();
+                //Program.RmTemperatureTest()
+                //    .GetAwaiter()
+                //    .GetResult();
 
-            //Lirc2ProntoTest();
+                //Lirc2ProntoTest();
 
-            //Program.A1SensorTest()
-            //    .GetAwaiter()
-            //    .GetResult();
+                //Program.A1SensorTest()
+                //    .GetAwaiter()
+                //    .GetResult();
 
-            //Program.Sp2SmartPlugTest()
-            //    .GetAwaiter()
-            //    .GetResult();
+                //Program.Sp2SmartPlugTest()
+                //    .GetAwaiter()
+                //    .GetResult();
 
-            Program.RmRfSignalTest()
-                .GetAwaiter()
-                .GetResult();
+                Program.RmRfSignalTest()
+                    .GetAwaiter()
+                    .GetResult();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+            }
+
+            while (Console.KeyAvailable)
+                Console.ReadKey();
+
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();
         }
 
         #region "TestOK"
 
         private static async Task<bool> RmRfSignalTest()
         {
-            var devs = await Broadlink.Discover(3);
-            var targetIp = new byte[] { 192, 168, 254, 142 };
-            var rm = (Rm2Pro)devs.FirstOrDefault(d => d.Host.Address.GetAddressBytes().SequenceEqual(targetIp));
+            Console.WriteLine("Searching for Rm2Pro devices...");
+            var devs = await Broadlink.Discover(1);
+            var rm = (Rm2Pro)devs.FirstOrDefault(d => d.DeviceType == DeviceType.Rm2Pro);
 
             if (rm == null)
                 throw new Exception("Rm2Pro Not Found");
+            else Console.WriteLine($"Rm2Pro found at {rm.Host}");
 
             if (!await rm.Auth())
                 throw new Exception("Auth Failure");
+            
+            Console.WriteLine("Starting RF frequency learning - press any button to continue, then, press and hold the remote button...");
+            while (!Console.KeyAvailable)
+                await Task.Delay(TimeSpan.FromMilliseconds(100));
+            while (Console.KeyAvailable)
+                Console.ReadKey(true);
 
-            var res1 = await rm.EnterRfLearning();
+            var cancellationSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            byte[] command = null;
+            try
+            {
+                command = await rm.LearnRfCommand(cancellationSource.Token, () =>
+                {
+                    Console.Write('.');
+                });
 
-            var res20 = await rm.CheckRfStep1Data();
+                if (command == null || command.Length == 0)
+                    throw new InvalidOperationException("Failed to learn RF command");                
+            }
+            catch(TaskCanceledException)
+            {
+                Console.WriteLine("Command learning cancelled");
+                return false;
+            }
 
-            var res21 = await rm.EnterRfLearning();
-
-            var res3 = await rm.CheckRfStep2Data();
-
-            var res4 = await rm.CancelRfLearning();
-
-            var res5 = await rm.SendRfData(res3);
+            while (Console.KeyAvailable)
+                Console.ReadKey(true);
+            Console.WriteLine();
+            Console.WriteLine($"RF Command learned [{command.Length}], press any key to trigger the command. Press ESC to exit...");
+            while (Console.ReadKey(true).Key != ConsoleKey.Escape)
+            {
+                Console.Write("Sending RF command... ");
+                await rm.SendRfData(command);
+                Console.WriteLine("RF command sent");
+            }
 
             return true;
         }
@@ -169,8 +207,6 @@ namespace ConsoleTest
             var res2 = Signals.Lirc2Broadlink(raw);
             var reverse = Signals.Broadlink2Lirc(res2);
             var res3 = Signals.Lirc2Broadlink(reverse);
-
-            var a = 1;
         }
 
         private static async Task<bool> A1SensorTest()
