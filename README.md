@@ -87,6 +87,14 @@ And...
     var bytes = Signals.String2ProntoBytes(pronto);
     
     await device.SendPronto(bytes);
+	
+#### Learning and sending RF codes using RM2Pro
+	
+	var rm2pro = (await Broadlink.Discover(1))
+                .First(x => x.DeviceType == DeviceType.Rm2Pro) as Rm2Pro;
+	await rm2pro.Auth();
+	using(var code = await rm2pro.LearnRfCommand(CancellationToken.None))
+		await rm2pro.SendRfData(code);
 
 #### Get sensor data with A1:
 
