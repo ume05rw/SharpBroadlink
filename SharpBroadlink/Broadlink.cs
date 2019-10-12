@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SharpBroadlink
@@ -18,16 +19,33 @@ namespace SharpBroadlink
             WPA12 = 4
         }
 
+        public static async Task<List<Devices.IDevice>> Discover(int timeout = 0)
+        {
+            var result = new List<Devices.IDevice>();
+            if (timeout == 0)
+            {
+                await Discover(result);
+            }
+            else
+            {
+                using (var cancellationSource = new CancellationTokenSource(TimeSpan.FromSeconds(timeout)))
+                    await Discover(result, null, cancellationSource.Token);
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Find devices on the LAN.
         /// </summary>
-        /// <param name="timeout"></param>
+        /// <param name="devices">Devices result collection</param>
+        /// <param name="cancellationToken">Optional Cancellation Token. If not provided the method will exit after discovering at least one device or after a timeout</param>
         /// <param name="localIpAddress"></param>
         /// <returns></returns>
         /// <remarks>
         /// https://github.com/mjg59/python-broadlink/blob/56b2ac36e5a2359272f4af8a49cfaf3e1891733a/broadlink/__init__.py#L61-L138
         /// </remarks>
-        public static async Task<Devices.IDevice[]> Discover(int timeout = 0, IPAddress localIpAddress = null)
+        public static async Task Discover(ICollection<Devices.IDevice> devices, IPAddress localIpAddress = null, CancellationToken cancellationToken = default)
         {
             if (localIpAddress == null)
                 localIpAddress = IPAddress.Any;
@@ -45,7 +63,6 @@ namespace SharpBroadlink
             {
                 var port = cs.LocalPort;
                 var startTime = DateTime.Now;
-                var devices = new List<Devices.IDevice>();
                 var timezone = (int)((System.TimeZoneInfo.Local).BaseUtcOffset.TotalSeconds / -3600);
                 var year = startTime.Year;
                 var subYear = year % 100;
@@ -95,13 +112,14 @@ namespace SharpBroadlink
                 packet[0x20] = (byte)(checksum & 0xff);
                 packet[0x21] = (byte)(checksum >> 8);
 
-                var isRecievedOnce = false;
+                var isReceivedOnce = false;
                 cs.OnRecieved += (object sender, Xb.Net.RemoteData rdata) =>
                 {
                     // Get mac
                     // 0x3a-0x3f, Little Endian
                     var mac = new byte[6];
                     Array.Copy(rdata.Bytes, 0x3a, mac, 0, 6);
+                    Array.Reverse(mac);
 
                     // Get IP address
                     byte[] addr;
@@ -176,29 +194,31 @@ namespace SharpBroadlink
                     var devType = (rdata.Bytes[0x34] | rdata.Bytes[0x35] << 8);
                     devices.Add(Devices.Factory.GenDevice(devType, host, mac));
 
-                    isRecievedOnce = true;
+                    isReceivedOnce = true;
                 };
 
                 await cs.SendToAsync(packet, IPAddress.Broadcast, 80);
 
-                await Task.Run(() =>
+                try
                 {
-                    while (true)
+                    await Task.Run(async () =>
                     {
-                        if ((timeout <= 0 && isRecievedOnce)
-                            || (timeout > 0
-                                && (DateTime.Now - startTime).TotalSeconds > timeout)
-                            )
-                            break;
+                        while (true)
+                        {
+                            if ((cancellationToken.Equals(CancellationToken.None) && (isReceivedOnce || (DateTime.Now - startTime).TotalSeconds > 10))
+                                || cancellationToken.IsCancellationRequested)
+                                break;
 
-                        Task.Delay(100)
-                            .ConfigureAwait(false)
-                            .GetAwaiter()
-                            .GetResult();
-                    }
-                });
-
-                return devices.ToArray();
+                            await Task.Delay(100).ConfigureAwait(false);
+                        }
+                    });
+                }
+                catch (TaskCanceledException)
+                {
+                }
+                catch (OperationCanceledException)
+                {
+                }
             }
         }
 
