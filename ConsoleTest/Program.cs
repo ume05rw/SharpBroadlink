@@ -28,10 +28,6 @@ namespace ConsoleTest
                 //    .GetAwaiter()
                 //    .GetResult();
 
-                //Program.RmTest()
-                //    .GetAwaiter()
-                //    .GetResult();
-
                 //Program.RmTemperatureTest()
                 //    .GetAwaiter()
                 //    .GetResult();
@@ -49,6 +45,8 @@ namespace ConsoleTest
                 Program.RmRfSignalTest()
                     .GetAwaiter()
                     .GetResult();
+
+                //TestIrLearning().Wait();
             }
             catch(Exception e)
             {
@@ -63,6 +61,32 @@ namespace ConsoleTest
         }
 
         #region "TestOK"
+
+        private static async Task TestIrLearning()
+        {
+            Console.WriteLine("Searching for Rm2Pro devices...");
+            var devs = await Broadlink.Discover(1);
+            var rm = (Rm2Pro)devs.FirstOrDefault(d => d.DeviceType == DeviceType.Rm2Pro);
+
+            if (rm == null)
+                throw new Exception("Rm2Pro Not Found");
+            else Console.WriteLine($"Rm2Pro found at {rm.Host}");
+
+            if (!await rm.Auth())
+                throw new Exception("Auth Failure");
+
+            Console.WriteLine("Learning command, press remote now");
+            var command = await rm.LearnIRCommnad(CancellationToken.None);
+            if (command == null || command.Length == 0)
+                throw new Exception("Failed to learn command");
+
+            Console.WriteLine("Command learned, press any key to send the command now...");
+            Console.ReadKey();
+
+            Console.WriteLine("Sending IR command");
+            await rm.SendData(command);
+            Console.WriteLine("IR command sent");
+        }
 
         private static async Task<bool> RmRfSignalTest()
         {
@@ -87,13 +111,19 @@ namespace ConsoleTest
             byte[] command = null;
             try
             {
-                command = await rm.LearnRfCommand(cancellationSource.Token, () =>
+                Action<string> moveToStage2 = (txt) =>
+                {
+                    Console.WriteLine(txt);
+                    Console.ReadKey(true);
+                };
+
+                command = await rm.LearnRfCommand(moveToStage2, cancellationSource.Token, () =>
                 {
                     Console.Write('.');
                 });
 
                 if (command == null || command.Length == 0)
-                    throw new InvalidOperationException("Failed to learn RF command");                
+                    throw new InvalidOperationException("Failed to learn RF command");
             }
             catch(TaskCanceledException)
             {
@@ -108,7 +138,7 @@ namespace ConsoleTest
             while (Console.ReadKey(true).Key != ConsoleKey.Escape)
             {
                 Console.Write("Sending RF command... ");
-                await rm.SendRfData(command);
+                await rm.SendData(command);
                 Console.WriteLine("RF command sent");
             }
 
@@ -134,26 +164,6 @@ namespace ConsoleTest
 
                 await dev.Auth();
             }
-
-            return true;
-        }
-
-        private static async Task<bool> RmTest()
-        {
-            var devs = await Broadlink.Discover();
-
-            var rm = (Rm)devs[0];
-
-            if (!await rm.Auth())
-                throw new Exception("Auth Failure");
-
-            await rm.EnterLearning();
-
-            var data1 = await rm.CheckData();
-
-            var data2 = await rm.CheckData();
-
-            await rm.SendData(data2);
 
             return true;
         }

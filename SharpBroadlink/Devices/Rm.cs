@@ -18,7 +18,7 @@ namespace SharpBroadlink.Devices
     {
         #region Properties
 
-        public static TimeSpan IRLearnIterval { get; set; } = TimeSpan.FromMilliseconds(100);
+        public static TimeSpan IRLearnIterval { get; set; } = TimeSpan.FromMilliseconds(1000);
 
         #endregion Properties
 
@@ -38,47 +38,6 @@ namespace SharpBroadlink.Devices
         #endregion Constructors
 
         #region Public Methods
-
-        /// <summary>
-        /// Into IR Learning mode
-        /// </summary>
-        /// <returns></returns>
-        public async Task<bool> EnterLearning()
-        {
-            var packet = new byte[16];
-            packet[0] = 0x03;
-
-            await SendPacket(0x6a, packet);
-
-            return true;
-        }
-
-        /// <summary>
-        /// Check recieved IR signal-data
-        /// </summary>
-        /// <returns></returns>
-        public async Task<byte[]> CheckData()
-        {
-            var packet = new byte[16];
-            packet[0] = 0x04;
-
-            var response = await SendPacket(0x6a, packet);
-            if (response == null || response.Length <= 0x38)
-                return null;
-
-            var err = response[0x22] | (response[0x23] << 8);
-            if (err == 0)
-            {
-                var payload = Decrypt(response, 0x38);
-                if (payload.Length <= 0x04)
-                    return null;
-
-                return payload.Skip(0x04).Take(int.MaxValue).ToArray();
-            }
-
-            // failure
-            return null;
-        }
 
         /// <summary>
         /// Cancel IR Learning mode
@@ -186,7 +145,10 @@ namespace SharpBroadlink.Devices
             {
                 try
                 {
-                    if (!await EnterLearning())
+                    if (!await CancelLearning())
+                        throw new InvalidOperationException("Failed to cancel any previous learning");
+
+                    if (!await EnterIrLearning())
                         throw new InvalidOperationException("Failed to enter IR learning");
 
                     cancellationToken.ThrowIfCancellationRequested();
@@ -208,5 +170,54 @@ namespace SharpBroadlink.Devices
         }
 
         #endregion Public Methods
+
+        #region Protected Methods
+
+        /// <summary>
+        /// Check recieved IR signal-data
+        /// </summary>
+        /// <returns></returns>
+        protected async Task<byte[]> CheckData()
+        {
+            var packet = new byte[16];
+            packet[0] = 0x04;
+
+            var response = await SendPacket(0x6a, packet);
+            if (response == null || response.Length <= 0x38)
+                return null;
+
+            var err = response[0x22] | (response[0x23] << 8);
+            if (err == 0)
+            {
+                var payload = Decrypt(response, 0x38);
+                if (payload.Length <= 0x04)
+                    return null;
+
+                return payload.Skip(0x04).Take(int.MaxValue).ToArray();
+            }
+
+            // failure
+            return null;
+        }
+
+        #endregion Protected Methods
+
+        #region Private Methods
+
+        /// <summary>
+        /// Into IR Learning mode
+        /// </summary>
+        /// <returns></returns>
+        private async Task<bool> EnterIrLearning()
+        {
+            var packet = new byte[16];
+            packet[0] = 0x03;
+
+            await SendPacket(0x6a, packet);
+
+            return true;
+        }
+
+        #endregion Private Methods
     }
 }
