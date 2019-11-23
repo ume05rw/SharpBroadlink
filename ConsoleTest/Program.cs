@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -111,13 +112,21 @@ namespace ConsoleTest
             byte[] command = null;
             try
             {
-                Action<string> moveToStage2 = (txt) =>
+                Action<Rm2Pro.RfLearningSteps> learnInstructionHandler = (instructions) =>
                 {
-                    Console.WriteLine(txt);
+                    //Get description from the enum - any other text will do
+                    var msg = instructions.GetType().GetField(instructions.ToString())
+                        ?.GetCustomAttributes(typeof(DescriptionAttribute), true)
+                        .OfType<DescriptionAttribute>()
+                        .FirstOrDefault()
+                        ?.Description
+                        ?? instructions.ToString();
+                        
+                    Console.WriteLine(msg);
                     Console.ReadKey(true);
                 };
 
-                command = await rm.LearnRfCommand(moveToStage2, cancellationSource.Token, () =>
+                command = await rm.LearnRfCommand(learnInstructionHandler, cancellationSource.Token, () =>
                 {
                     Console.Write('.');
                 });
