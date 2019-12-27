@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -139,8 +138,8 @@ namespace SharpBroadlink.Devices
         /// <returns>IR command</returns>
         /// <exception cref="InvalidOperationException">In case of failure</exception>
         /// <exception cref="TaskCanceledException">In case learning has benn cancelled</exception>
-        public Task<byte[]> LearnIRCommnad(CancellationToken cancellationToken)
-        {            
+        public Task<byte[]> LearnIRCommnad(Action<LearnInstructions> learnInstructions, CancellationToken cancellationToken)
+        {
             return Task.Run(async () =>
             {
                 try
@@ -152,9 +151,11 @@ namespace SharpBroadlink.Devices
                         throw new InvalidOperationException("Failed to enter IR learning");
 
                     cancellationToken.ThrowIfCancellationRequested();
+                    learnInstructions?.Invoke(LearnInstructions.PressRemoteButtonShortly);
+                    cancellationToken.ThrowIfCancellationRequested();
 
                     byte[] command = null;
-                    while(null == (command = await CheckData()))
+                    while (null == (command = await CheckData()))
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         await Task.Delay(IRLearnIterval);

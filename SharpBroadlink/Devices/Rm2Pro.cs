@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -47,15 +43,15 @@ namespace SharpBroadlink.Devices
         /// <returns>Learned RF command</returns>
         /// <exception cref="InvalidOperationException">In case of failure</exception>
         /// <exception cref="TaskCanceledException">In case learning has benn cancelled</exception>
-        public async Task<byte[]> LearnRfCommand(Action<RfLearningSteps> learnInstructions, CancellationToken cancellationToken, Action learnProgress = null)
-        {            
+        public async Task<byte[]> LearnRfCommand(Action<LearnInstructions> learnInstructions, CancellationToken cancellationToken, Action learnProgress = null)
+        {
             return await Task.Run(async () =>
             {
                 try
                 {
                     if (!await CancelLearning())
                         throw new InvalidOperationException("Failed to cancel any previous learning");
-                    learnInstructions?.Invoke(RfLearningSteps.SweepingFrequencies);
+                    learnInstructions?.Invoke(LearnInstructions.PressAndHoldRemotedButton);
 
                     if (!await SweepFrequencies())
                         throw new InvalidOperationException("Failed to sweep frequencies");
@@ -68,14 +64,14 @@ namespace SharpBroadlink.Devices
                         await Task.Delay(RfFrequencyLearnInterval, cancellationToken);
                     }
 
-                    learnInstructions?.Invoke(RfLearningSteps.SweepingFrequenciesFinished);
+                    learnInstructions?.Invoke(LearnInstructions.ReleaseRemoteButton);
 
                     //Move to step 2 - learning the actual command
                     await FindRfPacket();
-                    learnInstructions?.Invoke(RfLearningSteps.LearningCommand);
+                    learnInstructions?.Invoke(LearnInstructions.PressRemoteButtonShortly);
 
                     byte[] commandData = null;
-                    while(null == (commandData = await CheckData()))
+                    while (null == (commandData = await CheckData()))
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         learnProgress?.Invoke();
@@ -163,19 +159,5 @@ namespace SharpBroadlink.Devices
         }
 
         #endregion Private Methods
-
-        #region Types
-
-        public enum RfLearningSteps
-        {
-            [Description("Press and hold the remote button")]
-            SweepingFrequencies,
-            [Description("Release the remote")]
-            SweepingFrequenciesFinished,
-            [Description("Press again shortly the command you want to learn")]
-            LearningCommand,
-        }
-
-        #endregion Types
     }
 }

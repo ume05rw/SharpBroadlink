@@ -112,7 +112,7 @@ namespace ConsoleTest
             byte[] command = null;
             try
             {
-                Action<Rm2Pro.RfLearningSteps> learnInstructionHandler = (instructions) =>
+                Action<Rm2Pro.LearnInstructions> learnInstructionHandler = (instructions) =>
                 {
                     //Get description from the enum - any other text will do
                     var msg = instructions.GetType().GetField(instructions.ToString())
